@@ -33,16 +33,27 @@ You should have received a copy of the GNU General Public License along with thi
 https://dbatools.io/Find-DbaTraceFlag
 
 .EXAMPLE
-Find-DbaCommand "snapshot"
+Find-DbaTraceFlag -Scope query -list
 
-For lazy typers: finds all commands searching the entire help for "snapshot"
+Find all trace flags with a query scope, output as a list instead of a table. 
+
+.EXAMPLE
+Find-DbaTraceFlag -Id 9939
+
+Find the trace flag with an Id of 9939, output as a table.
+
+.EXAMPLE
+Find-DbaTraceFlag -Description 'parallel'
+
+Find all trace flags with the word parallel in the description.
 
 #>
-	[CmdletBinding(SupportsShouldProcess = $true)]
+	[CmdletBinding()]
 	Param (
 		[String]$Description,
 		[String[]]$Scope,
-		[String]$Id
+		[String]$Id, 
+        [Switch]$List
 	)
 	BEGIN
 	{				
@@ -55,16 +66,16 @@ For lazy typers: finds all commands searching the entire help for "snapshot"
 		$consolidated = Get-Content -Raw $idxfile | ConvertFrom-Json
 		$result = $consolidated
 
-		if ($Pattern.length -gt 0)
+		if ($Description.length -gt 0)
 		{
-			$result = $result | Where-Object Description -Contains $Description
+			$result = $result | Where-Object Description -like "*$Description*"
 		}
 		
-		if ($Name.length -gt 0)
+		if ($Scope.length -gt 0)
 		{
-			foreach ($t in $Tag)
+			foreach ($s in $Scope)
 			{
-				$result = $result | Where-Object Name -contains $t
+				$result = $result | Where-Object Scope -like "*$s*"
 			}
 		}
 		
@@ -73,6 +84,11 @@ For lazy typers: finds all commands searching the entire help for "snapshot"
 			$result = $result | Where-Object TraceFlagId -eq $Id
 		}
 		
-		Select-DefaultView -InputObject $result -Property TraceFlagId, Scope, Description
+        if ($List) 
+        { 
+           $result | Format-List 
+        } else { 
+            Select-DefaultView -InputObject $result -Property TraceFlagId, Scope, Description           
+        }		
 	}
 }
