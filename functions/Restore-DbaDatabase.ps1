@@ -440,10 +440,10 @@ function Restore-DbaDatabase {
                         #This one once it's sorted:
                         $f = $f | Select-Object *, @{Name="BackupSetGUID";Expression={$_.BackupSetID}}
                     }
-                    # if ($f.BackupPath -like 'http*' -and '' -eq $AzureCredential) {
-                    #     Stop-Function -Message "At least one Azure backup passed in, and no Credential supplied. Stopping"
-                    #     return
-                    # }
+                    if ($f.BackupPath -like 'http*' -and '' -eq $AzureCredential) {
+                        Stop-Function -Message "At least one Azure backup passed in, and no Credential supplied. Stopping"
+                        return
+                    }
                     
                     $BackupHistory += $F | Select-Object *, @{ Name = "ServerName"; Expression = { $_.SqlInstance } }, @{ Name = "BackupStartDate"; Expression = { $_.Start -as [DateTime] } }
 

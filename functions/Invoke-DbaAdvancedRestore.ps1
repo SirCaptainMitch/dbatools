@@ -195,7 +195,7 @@ Function Invoke-DbaAdvancedRestore{
                     $Device.Name = $file
                     if ($file -like "http*") {
                         $Device.devicetype = "URL"
-                        $Restore.CredentialName = $AzureCredential
+                        # $Restore.CredentialName = $AzureCredential
                     }
                     else {
                         $Device.devicetype = "File"
